@@ -1,0 +1,31 @@
+name: Build PresentHook DLL
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: windows-2022
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup MSVC
+        uses: microsoft/setup-msbuild@v2
+      
+      - name: Create output directories
+        run: |
+          mkdir x64
+          mkdir x64\Release
+      
+      - name: Build DLL
+        shell: cmd
+        run: |
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          cl.exe /LD /O2 /W4 /DWIN32 /DWINDOWS /EHsc /Zi PresentHook.cpp /DLL /OUT:x64\Release\PresentHook.dll /INCREMENTAL:NO
+      
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PresentHook-dll
+          path: x64\Release\PresentHook.dll
+          if-no-files-found: error
